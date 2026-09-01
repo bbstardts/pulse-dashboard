@@ -115,15 +115,15 @@ function wireFilterEvents() {
     saleSubmitBtn.disabled = true;
     saleSubmitBtn.textContent = "Adding…";
     try {
-      await addManualSale(
-        {
-          productId: saleProductEl.value,
-          customerId: saleCustomerEl.value,
-          quantity: saleQuantityEl.value,
-          status: saleStatusEl.value,
-        },
-        referenceData
-      );
+            const product = findProductByName(saleProductEl.value);
+      const customer = findCustomerByName(saleCustomerEl.value);
+
+      await addManualSale({
+        product,
+        customer,
+        quantity: saleQuantityEl.value,
+        status: saleStatusEl.value,
+      });
       // The onSnapshot listener picks up the new doc and calls
       // renderAll() automatically — no manual refresh needed here.
       closeSaleModal();
@@ -144,17 +144,31 @@ function wireFilterEvents() {
 // ---------- Sale modal helpers ----------
 
 function populateSaleFormOptions() {
-  saleProductEl.innerHTML = referenceData.products
-    .map((p) => `<option value="${p.id}">${p.name} — $${p.price.toFixed(2)}</option>`)
+  document.getElementById("productOptions").innerHTML = referenceData.products
+    .map((p) => `<option value="${p.name}">`)
     .join("");
 
-  saleCustomerEl.innerHTML = referenceData.customers
-    .map((c) => `<option value="${c.id}">${c.name}</option>`)
+  document.getElementById("customerOptions").innerHTML = referenceData.customers
+    .map((c) => `<option value="${c.name}">`)
     .join("");
 }
 
+function findProductByName(name) {
+  const target = name.trim().toLowerCase();
+  return referenceData.products.find((p) => p.name.toLowerCase() === target) || null;
+}
+
+function findCustomerByName(name) {
+  const target = name.trim().toLowerCase();
+  const existing = referenceData.customers.find((c) => c.name.toLowerCase() === target);
+  if (existing) return existing;
+  if (!name.trim()) return null;
+  const randomRegion = referenceData.regions[Math.floor(Math.random() * referenceData.regions.length)];
+  return { id: null, name: name.trim(), regionId: randomRegion ? randomRegion.id : null };
+}
+
 function updateTotalPreview() {
-  const product = referenceData.products.find((p) => p.id === saleProductEl.value);
+  const product = findProductByName(saleProductEl.value);
   const qty = Math.max(1, Math.min(20, Number(saleQuantityEl.value) || 1));
   const total = product ? product.price * qty : 0;
   saleTotalPreviewEl.textContent = `$${total.toFixed(2)}`;
