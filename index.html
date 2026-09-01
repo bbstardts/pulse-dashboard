@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sales & Revenue Dashboard</title>
-  <meta name="description" content="A live sales and revenue dashboard built with vanilla JavaScript and Firebase real-time charts, KPIs, and filters." />
+  <title>Pulse — Sales & Revenue Dashboard</title>
+  <meta name="description" content="A live sales and revenue dashboard built with vanilla JavaScript and Firebase — real-time charts, KPIs, and filters." />
 
   <!-- Open Graph / LinkedIn link preview -->
-  <meta property="og:title" content="Sales & Revenue Dashboard" />
+  <meta property="og:title" content="Pulse — Sales & Revenue Dashboard" />
   <meta property="og:description" content="A live sales and revenue dashboard built with vanilla JavaScript and Firebase." />
   <meta property="og:type" content="website" />
 
@@ -168,9 +168,57 @@
     </section>
 
     <footer class="app-footer">
-      <p>Built with vanilla JS &amp; Firebase - data is simulated for demo purposes.</p>
+      <p>Built with vanilla JS &amp; Firebase — data is simulated for demo purposes.</p>
     </footer>
 
+  </div>
+
+  <!-- Add Sale Modal -->
+  <div class="modal-overlay" id="saleModalOverlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="saleModalTitle">
+      <div class="modal-header">
+        <h2 id="saleModalTitle" class="modal-title">Add a new sale</h2>
+        <button type="button" class="modal-close" id="saleModalClose" aria-label="Close">&times;</button>
+      </div>
+
+      <form id="saleForm" class="modal-form">
+        <div class="form-field">
+          <label for="saleProduct">Product</label>
+          <select id="saleProduct" class="select-control" required></select>
+        </div>
+
+        <div class="form-field">
+          <label for="saleCustomer">Customer</label>
+          <select id="saleCustomer" class="select-control" required></select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="saleQuantity">Quantity</label>
+            <input type="number" id="saleQuantity" class="select-control" min="1" max="20" value="1" required />
+          </div>
+
+          <div class="form-field">
+            <label for="saleStatus">Status</label>
+            <select id="saleStatus" class="select-control">
+              <option value="completed" selected>Completed</option>
+              <option value="pending">Pending</option>
+              <option value="refunded">Refunded</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-total">
+          <span>Order total</span>
+          <span id="saleTotalPreview">$0.00</span>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="saleCancelBtn">Cancel</button>
+          <button type="submit" class="btn-primary" id="saleSubmitBtn">Add sale</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>

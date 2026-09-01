@@ -109,3 +109,36 @@ export async function addRandomSale({ products, customers }) {
   await addDoc(collection(db, "transactions"), transaction);
   return transaction;
 }
+
+// ---------- Adding a manually-entered sale ----------
+// Used by the "Add a new sale" modal — the visitor picks the product,
+// customer, quantity and status themselves rather than getting a
+// random one.
+
+export async function addManualSale({ productId, customerId, quantity, status }, { products, customers }) {
+  const product = products.find((p) => p.id === productId);
+  const customer = customers.find((c) => c.id === customerId);
+
+  if (!product) throw new Error("Selected product not found.");
+  if (!customer) throw new Error("Selected customer not found.");
+
+  const qty = Math.max(1, Math.min(20, Number(quantity) || 1));
+  const amount = Math.round(product.price * qty * 100) / 100;
+  const profit = Math.round((product.price - product.cost) * qty * 100) / 100;
+
+  const transaction = {
+    productId: product.id,
+    productName: product.name,
+    category: product.category,
+    customerId: customer.id,
+    regionId: customer.regionId,
+    quantity: qty,
+    amount,
+    profit,
+    date: Timestamp.now(),
+    status: status || "completed",
+  };
+
+  await addDoc(collection(db, "transactions"), transaction);
+  return transaction;
+}
