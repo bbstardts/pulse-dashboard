@@ -1,0 +1,13 @@
+{
+  "name": "sales-dashboard-seed",
+  "version": "1.0.0",
+  "description": "One-time seeding script to populate Firestore with realistic sales data for the dashboard",
+  "main": "seed.js",
+  "type": "commonjs",
+  "scripts": {
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
