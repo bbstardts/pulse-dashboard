@@ -115,12 +115,9 @@ export async function addRandomSale({ products, customers }) {
 // customer, quantity and status themselves rather than getting a
 // random one.
 
-export async function addManualSale({ productId, customerId, quantity, status }, { products, customers }) {
-  const product = products.find((p) => p.id === productId);
-  const customer = customers.find((c) => c.id === customerId);
-
-  if (!product) throw new Error("Selected product not found.");
-  if (!customer) throw new Error("Selected customer not found.");
+export async function addManualSale({ product, customer, quantity, status }) {
+  if (!product) throw new Error("Please pick a product from the suggestions.");
+  if (!customer) throw new Error("Please enter a customer name.");
 
   const qty = Math.max(1, Math.min(20, Number(quantity) || 1));
   const amount = Math.round(product.price * qty * 100) / 100;
@@ -130,7 +127,8 @@ export async function addManualSale({ productId, customerId, quantity, status },
     productId: product.id,
     productName: product.name,
     category: product.category,
-    customerId: customer.id,
+    customerId: customer.id || null,
+    customerName: customer.name,
     regionId: customer.regionId,
     quantity: qty,
     amount,
