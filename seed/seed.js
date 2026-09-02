@@ -65,10 +65,20 @@ function buildMonthBuckets(monthsOfHistory) {
 }
 
 function randomDateInMonth(year, month) {
-  const day = randomInt(1, 28);
+  const now = new Date();
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
+
+  // For the current month, only pick a day up to today — otherwise a
+  // random day like the 26th would land "in the future" and wrongly
+  // outrank real live-added transactions at the top of the Recent
+  // Transactions list.
+  const maxDay = isCurrentMonth ? now.getDate() : 28;
+  const day = randomInt(1, Math.max(1, Math.min(maxDay, 28)));
   const hour = randomInt(8, 22);
   const minute = randomInt(0, 59);
-  return new Date(year, month, day, hour, minute);
+
+  const candidate = new Date(year, month, day, hour, minute);
+  return candidate > now ? now : candidate;
 }
 
 // ---------- Clearing (so the script is safely re-runnable) ----------
