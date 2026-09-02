@@ -50,6 +50,7 @@
 html, body {
   margin: 0;
   padding: 0;
+  color-scheme: dark;
 }
 
 body {
@@ -145,51 +146,31 @@ body {
   flex-wrap: wrap;
 }
 
-.select-control,
-.text-control {
-  appearance: none;
-  -webkit-appearance: none;
-  color-scheme: dark;
-  background-color: var(--color-panel);
+.select-control {
+  background: var(--color-panel);
   border: 1px solid var(--color-panel-border);
   color: var(--color-text-primary);
   font-family: var(--font-body);
   font-size: 13px;
-  padding: 9px 36px 9px 14px;
+  padding: 9px 14px;
   border-radius: var(--radius-sm);
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-}
-
-select.select-control {
   cursor: pointer;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%233ecf8e' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
+  transition: border-color 0.15s ease;
 }
 
-.text-control {
-  padding-right: 14px;
+.select-control:hover {
+  border-color: var(--color-panel-border-hover);
 }
 
-.select-control:hover,
-.text-control:hover {
-  border-color: var(--color-accent);
-  background-color: rgba(62, 207, 142, 0.06);
-}
-
-.select-control:focus-visible,
-.text-control:focus-visible,
-.select-control:focus,
-.text-control:focus {
-  outline: none;
-  border-color: var(--color-accent);
-  background-color: rgba(62, 207, 142, 0.08);
-  box-shadow: 0 0 0 3px var(--color-accent-soft);
-}
-
-.select-control option {
-  background-color: var(--color-bg-elevated);
+.select-control option,
+.form-field select option {
+  background: var(--color-bg-elevated);
   color: var(--color-text-primary);
+}
+
+.select-control:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .btn-primary {
@@ -494,28 +475,30 @@ select.select-control {
   }
 }
 
-/* ---------- Add Sale Modal ---------- */
+/* ===========================================================
+   Add Sale modal
+   =========================================================== */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 7, 10, 0.65);
-  backdrop-filter: blur(6px);
+  background: rgba(6, 8, 11, 0.7);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
   z-index: 100;
-  animation: modalFadeIn 0.18s ease-out;
+  padding: 20px;
+  animation: overlay-enter 0.15s ease both;
+}
+
+@keyframes overlay-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal-overlay[hidden] {
   display: none;
-}
-
-@keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 .modal {
@@ -524,14 +507,20 @@ select.select-control {
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-panel-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
   padding: 24px;
-  animation: modalRise 0.2s ease-out;
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.7);
+  animation: modal-enter 0.2s ease both;
 }
 
-@keyframes modalRise {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-header {
@@ -543,32 +532,23 @@ select.select-control {
 
 .modal-title {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 500;
-  color: var(--color-text-primary);
   margin: 0;
 }
 
 .modal-close {
-  background: transparent;
+  background: none;
   border: none;
   color: var(--color-text-secondary);
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
+  padding: 4px;
 }
 
 .modal-close:hover {
   color: var(--color-text-primary);
-  background: var(--color-panel);
-}
-
-.modal-close:focus-visible,
-.btn-secondary:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
 }
 
 .modal-form {
@@ -577,22 +557,30 @@ select.select-control {
   gap: 16px;
 }
 
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .form-field label {
-  font-size: 13px;
+  display: block;
+  font-size: 12.5px;
   color: var(--color-text-secondary);
+  margin-bottom: 6px;
   font-weight: 500;
 }
 
-.form-field .select-control,
-.form-field input.select-control {
+.form-field select,
+.form-field input {
   width: 100%;
+  background: var(--color-panel);
+  border: 1px solid var(--color-panel-border);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
   padding: 10px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.form-field select:focus-visible,
+.form-field input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
 }
 
 .form-row {
@@ -601,27 +589,12 @@ select.select-control {
   gap: 12px;
 }
 
-.modal-total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  background: var(--color-accent-soft);
-  border: 1px solid rgba(62, 207, 142, 0.25);
-  border-radius: var(--radius-md);
+.form-preview {
   font-family: var(--font-display);
-}
-
-.modal-total span:first-child {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--color-text-secondary);
-}
-
-.modal-total span:last-child {
   font-size: 20px;
   font-weight: 500;
   color: var(--color-accent);
+  padding: 4px 2px;
 }
 
 .modal-actions {
@@ -634,22 +607,17 @@ select.select-control {
 .btn-secondary {
   background: transparent;
   border: 1px solid var(--color-panel-border);
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
   font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 14px;
-  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 16px;
   border-radius: var(--radius-sm);
   cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .btn-secondary:hover {
   border-color: var(--color-panel-border-hover);
-  background: var(--color-panel);
-}
-
-@media (max-width: 480px) {
-  .form-row {
-    grid-template-columns: 1fr;
-  }
+  color: var(--color-text-primary);
 }

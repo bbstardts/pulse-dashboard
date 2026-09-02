@@ -12,6 +12,7 @@ import {
   groupRevenueByDay,
   groupRevenueByCategory,
   groupRevenueByRegion,
+  formatCurrency,
 } from "./aggregations.js";
 import { initCharts, updateRevenueTrendChart, updateCategoryChart, updateRegionChart } from "./charts.js";
 import { renderKPIs, renderTransactionsTable } from "./ui.js";
@@ -22,6 +23,7 @@ let allTransactions = [];
 let referenceData = { products: [], regions: [], customers: [] };
 let customersById = new Map();
 let regionsById = new Map();
+let productsById = new Map();
 
 const filters = {
   days: 365,
@@ -36,16 +38,16 @@ const regionFilterEl = document.getElementById("regionFilter");
 const categoryFilterEl = document.getElementById("categoryFilter");
 const generateSaleBtn = document.getElementById("generateSaleBtn");
 
-const saleModalOverlay = document.getElementById("saleModalOverlay");
-const saleModalClose = document.getElementById("saleModalClose");
-const saleCancelBtn = document.getElementById("saleCancelBtn");
-const saleForm = document.getElementById("saleForm");
+const addSaleOverlay = document.getElementById("addSaleOverlay");
+const addSaleForm = document.getElementById("addSaleForm");
+const closeSaleModalBtn = document.getElementById("closeSaleModal");
+const cancelSaleBtn = document.getElementById("cancelSaleBtn");
+const submitSaleBtn = document.getElementById("submitSaleBtn");
 const saleProductEl = document.getElementById("saleProduct");
 const saleCustomerEl = document.getElementById("saleCustomer");
 const saleQuantityEl = document.getElementById("saleQuantity");
 const saleStatusEl = document.getElementById("saleStatus");
-const saleTotalPreviewEl = document.getElementById("saleTotalPreview");
-const saleSubmitBtn = document.getElementById("saleSubmitBtn");
+const salePreviewEl = document.getElementById("salePreview");
 
 // ---------- Rendering pipeline ----------
 
@@ -79,6 +81,43 @@ function clearLoadingState() {
   });
 }
 
+// ---------- Add Sale modal ----------
+
+function populateSaleFormOptions() {
+  saleProductEl.innerHTML = referenceData.products
+    .map((p) => `<option value="${p.id}">${escapeHtml(p.name)} — $${p.price.toFixed(2)}</option>`)
+    .join("");
+
+  saleCustomerEl.innerHTML = referenceData.customers
+    .map((c) => `<option value="${c.id}">${escapeHtml(c.name)} (${escapeHtml(regionsById.get(c.regionId)?.name || "")})</option>`)
+    .join("");
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function updateSalePreview() {
+  const product = productsById.get(saleProductEl.value);
+  const quantity = Number(saleQuantityEl.value) || 0;
+  const total = product ? product.price * quantity : 0;
+  salePreviewEl.textContent = `Total: ${formatCurrency(total)}`;
+}
+
+function openSaleModal() {
+  populateSaleFormOptions();
+  updateSalePreview();
+  addSaleOverlay.hidden = false;
+  saleProductEl.focus();
+}
+
+function closeSaleModal() {
+  addSaleOverlay.hidden = true;
+  addSaleForm.reset();
+}
+
 // ---------- Event wiring ----------
 
 function wireFilterEvents() {
@@ -96,96 +135,53 @@ function wireFilterEvents() {
     filters.category = e.target.value;
     renderAll();
   });
+}
 
+function wireSaleModalEvents() {
   generateSaleBtn.addEventListener("click", openSaleModal);
-  saleModalClose.addEventListener("click", closeSaleModal);
-  saleCancelBtn.addEventListener("click", closeSaleModal);
-  saleModalOverlay.addEventListener("click", (e) => {
-    if (e.target === saleModalOverlay) closeSaleModal();
+  closeSaleModalBtn.addEventListener("click", closeSaleModal);
+  cancelSaleBtn.addEventListener("click", closeSaleModal);
+
+  addSaleOverlay.addEventListener("click", (e) => {
+    if (e.target === addSaleOverlay) closeSaleModal();
   });
+
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !saleModalOverlay.hidden) closeSaleModal();
+    if (e.key === "Escape" && !addSaleOverlay.hidden) closeSaleModal();
   });
 
-  saleProductEl.addEventListener("change", updateTotalPreview);
-  saleQuantityEl.addEventListener("input", updateTotalPreview);
+  saleProductEl.addEventListener("change", updateSalePreview);
+  saleQuantityEl.addEventListener("input", updateSalePreview);
 
-  saleForm.addEventListener("submit", async (e) => {
+  addSaleForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    saleSubmitBtn.disabled = true;
-    saleSubmitBtn.textContent = "Adding…";
-    try {
-            const product = findProductByName(saleProductEl.value);
-      const customer = findCustomerByName(saleCustomerEl.value);
 
+    submitSaleBtn.disabled = true;
+    submitSaleBtn.textContent = "Adding…";
+
+    try {
       await addManualSale({
-        product,
-        customer,
-        quantity: saleQuantityEl.value,
+        productId: saleProductEl.value,
+        customerId: saleCustomerEl.value,
+        quantity: Number(saleQuantityEl.value),
         status: saleStatusEl.value,
+        products: referenceData.products,
+        customers: referenceData.customers,
       });
-      // The onSnapshot listener picks up the new doc and calls
-      // renderAll() automatically — no manual refresh needed here.
+      // The onSnapshot listener picks up the new doc automatically and
+      // calls renderAll() — no manual re-render needed here.
       closeSaleModal();
     } catch (err) {
       console.error("Failed to add sale:", err);
-      saleSubmitBtn.textContent = "Something went wrong";
+      submitSaleBtn.textContent = "Something went wrong";
       setTimeout(() => {
-        saleSubmitBtn.textContent = "Add sale";
-        saleSubmitBtn.disabled = false;
+        submitSaleBtn.textContent = "Add sale";
       }, 2000);
-      return;
+    } finally {
+      submitSaleBtn.disabled = false;
+      submitSaleBtn.textContent = "Add sale";
     }
-    saleSubmitBtn.textContent = "Add sale";
-    saleSubmitBtn.disabled = false;
   });
-}
-
-// ---------- Sale modal helpers ----------
-
-function populateSaleFormOptions() {
-  document.getElementById("productOptions").innerHTML = referenceData.products
-    .map((p) => `<option value="${p.name}">`)
-    .join("");
-
-  document.getElementById("customerOptions").innerHTML = referenceData.customers
-    .map((c) => `<option value="${c.name}">`)
-    .join("");
-}
-
-function findProductByName(name) {
-  const target = name.trim().toLowerCase();
-  return referenceData.products.find((p) => p.name.toLowerCase() === target) || null;
-}
-
-function findCustomerByName(name) {
-  const target = name.trim().toLowerCase();
-  const existing = referenceData.customers.find((c) => c.name.toLowerCase() === target);
-  if (existing) return existing;
-  if (!name.trim()) return null;
-  const randomRegion = referenceData.regions[Math.floor(Math.random() * referenceData.regions.length)];
-  return { id: null, name: name.trim(), regionId: randomRegion ? randomRegion.id : null };
-}
-
-function updateTotalPreview() {
-  const product = findProductByName(saleProductEl.value);
-  const qty = Math.max(1, Math.min(20, Number(saleQuantityEl.value) || 1));
-  const total = product ? product.price * qty : 0;
-  saleTotalPreviewEl.textContent = `$${total.toFixed(2)}`;
-}
-
-function openSaleModal() {
-  populateSaleFormOptions();
-  saleQuantityEl.value = 1;
-  saleStatusEl.value = "completed";
-  updateTotalPreview();
-  saleModalOverlay.hidden = false;
-  saleProductEl.focus();
-}
-
-function closeSaleModal() {
-  saleModalOverlay.hidden = true;
-  saleForm.reset();
 }
 
 // ---------- Bootstrap ----------
@@ -193,11 +189,13 @@ function closeSaleModal() {
 async function init() {
   initCharts();
   wireFilterEvents();
+  wireSaleModalEvents();
 
   try {
     referenceData = await fetchReferenceData();
     customersById = new Map(referenceData.customers.map((c) => [c.id, c]));
     regionsById = new Map(referenceData.regions.map((r) => [r.id, r]));
+    productsById = new Map(referenceData.products.map((p) => [p.id, p]));
   } catch (err) {
     console.error("Failed to load reference data:", err);
   }

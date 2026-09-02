@@ -64,7 +64,7 @@
         </div>
 
         <button id="generateSaleBtn" class="btn-primary" disabled>
-          Add a new sale
+          Add a sale
         </button>
       </div>
     </header>
@@ -173,48 +173,44 @@
 
   </div>
 
-  <!-- Add Sale Modal -->
-  <div class="modal-overlay" id="saleModalOverlay" hidden>
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="saleModalTitle">
+  <!-- Add Sale modal -->
+  <div class="modal-overlay" id="addSaleOverlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addSaleTitle">
       <div class="modal-header">
-        <h2 id="saleModalTitle" class="modal-title">Add a new sale</h2>
-        <button type="button" class="modal-close" id="saleModalClose" aria-label="Close">&times;</button>
+        <h2 id="addSaleTitle" class="modal-title">Add a sale</h2>
+        <button type="button" class="modal-close" id="closeSaleModal" aria-label="Close">&times;</button>
       </div>
 
-      <form id="saleForm" class="modal-form">
-               <div class="form-field">
+      <form id="addSaleForm" class="modal-form">
+        <div class="form-field">
           <label for="saleProduct">Product</label>
-          <input type="text" id="saleProduct" class="text-control" list="productOptions" placeholder="Type a product name" autocomplete="off" required />
-          <datalist id="productOptions"></datalist>
+          <select id="saleProduct" required></select>
         </div>
 
         <div class="form-field">
           <label for="saleCustomer">Customer</label>
-          <input type="text" id="saleCustomer" class="text-control" list="customerOptions" placeholder="Type a customer name" autocomplete="off" required />
-          <datalist id="customerOptions"></datalist>
+          <select id="saleCustomer" required></select>
         </div>
 
-        <div class="form-field">
-          <label for="saleQuantity">Quantity</label>
-          <input type="number" id="saleQuantity" class="text-control" min="1" max="20" value="1" required />
+        <div class="form-field form-row">
+          <div>
+            <label for="saleQuantity">Quantity</label>
+            <input type="number" id="saleQuantity" min="1" max="10" value="1" required />
+          </div>
+          <div>
+            <label for="saleStatus">Status</label>
+            <select id="saleStatus">
+              <option value="completed">Completed</option>
+              <option value="refunded">Refunded</option>
+            </select>
+          </div>
         </div>
 
-        <div class="form-field">
-          <label for="saleStatus">Status</label>
-          <select id="saleStatus" class="select-control">
-            <option value="completed" selected>Completed</option>
-            <option value="refunded">Refunded</option>
-          </select>
-        </div>
-
-        <div class="modal-total">
-          <span>Order total</span>
-          <span id="saleTotalPreview">$0.00</span>
-        </div>
+        <div class="form-preview" id="salePreview">Total: $0.00</div>
 
         <div class="modal-actions">
-          <button type="button" class="btn-secondary" id="saleCancelBtn">Cancel</button>
-          <button type="submit" class="btn-primary" id="saleSubmitBtn">Add sale</button>
+          <button type="button" class="btn-secondary" id="cancelSaleBtn">Cancel</button>
+          <button type="submit" class="btn-primary" id="submitSaleBtn">Add sale</button>
         </div>
       </form>
     </div>

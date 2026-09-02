@@ -111,30 +111,33 @@ export async function addRandomSale({ products, customers }) {
 }
 
 // ---------- Adding a manually-entered sale ----------
-// Used by the "Add a new sale" modal — the visitor picks the product,
-// customer, quantity and status themselves rather than getting a
-// random one.
+// Used by the "Add a sale" form: the visitor picks the product, customer,
+// quantity, and status; amount/profit are still computed from the
+// product's price/cost so the numbers stay consistent with the rest
+// of the dataset.
 
-export async function addManualSale({ product, customer, quantity, status }) {
-  if (!product) throw new Error("Please pick a product from the suggestions.");
-  if (!customer) throw new Error("Please enter a customer name.");
+export async function addManualSale({ productId, customerId, quantity, status, products, customers }) {
+  const product = products.find((p) => p.id === productId);
+  const customer = customers.find((c) => c.id === customerId);
 
-  const qty = Math.max(1, Math.min(20, Number(quantity) || 1));
-  const amount = Math.round(product.price * qty * 100) / 100;
-  const profit = Math.round((product.price - product.cost) * qty * 100) / 100;
+  if (!product) throw new Error("Select a valid product.");
+  if (!customer) throw new Error("Select a valid customer.");
+  if (!quantity || quantity < 1) throw new Error("Quantity must be at least 1.");
+
+  const amount = Math.round(product.price * quantity * 100) / 100;
+  const profit = Math.round((product.price - product.cost) * quantity * 100) / 100;
 
   const transaction = {
     productId: product.id,
     productName: product.name,
     category: product.category,
-    customerId: customer.id || null,
-    customerName: customer.name,
+    customerId: customer.id,
     regionId: customer.regionId,
-    quantity: qty,
+    quantity,
     amount,
     profit,
     date: Timestamp.now(),
-    status: status || "completed",
+    status: status === "refunded" ? "refunded" : "completed",
   };
 
   await addDoc(collection(db, "transactions"), transaction);
