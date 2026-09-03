@@ -1,7 +1,4 @@
-// seed/config.js
-// Static reference data + tunable parameters for the simulation.
-// Edit these values to change how much data gets generated, or to
-// change the products/regions/categories used in the dashboard.
+
 
 module.exports = {
   // How many months of historical transactions to generate
