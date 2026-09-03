@@ -1,16 +1,6 @@
 rules_version = '2';
 
-// Firestore Security Rules for the Pulse sales dashboard demo.
-//
-// This is intentionally permissive since it's a public portfolio demo
-// with no auth layer: anyone can read (to view the dashboard) and
-// anyone can add a transaction (the "Add a new sale" button). Writes
-// are restricted to only the fields/shape we expect, and updates/
-// deletes are blocked entirely so visitors can't tamper with existing
-// data.
-//
-// If you add Firebase Auth later, tighten `allow create` to
-// `request.auth != null` so only signed-in users can add sales.
+
 
 service cloud.firestore {
   match /databases/{database}/documents {
