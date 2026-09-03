@@ -1,18 +1,4 @@
-// seed/seed.js
-//
-// One-time script to populate Firestore with realistic sales data.
-//
-// SETUP:
-// 1. In the Firebase Console -> Project Settings -> Service Accounts,
-//    click "Generate new private key". Save the downloaded file as
-//    `serviceAccountKey.json` in this same /seed folder.
-//    (This file is git-ignored — never commit it.)
-// 2. Run: npm install
-// 3. Run: npm run seed
-//
-// This uses the Admin SDK, so it bypasses your Firestore security rules.
-// Run it once to set up initial data. Safe to re-run (it clears the
-// relevant collections first — see clearCollections() below).
+
 
 const admin = require("firebase-admin");
 const config = require("./config");
@@ -39,9 +25,7 @@ function randomFullName() {
   return `${randomChoice(config.FIRST_NAMES)} ${randomChoice(config.LAST_NAMES)}`;
 }
 
-// Produces a "trend + seasonality" weight for a given month index (0 = oldest month).
-// - Overall upward trend over time (later months weigh more)
-// - Seasonal bump around Nov/Dec (holiday shopping)
+
 function monthWeight(monthIndex, totalMonths, calendarMonth) {
   const trendFactor = 1 + (monthIndex / totalMonths) * 0.8; // up to +80% by the most recent month
   const isHolidaySeason = calendarMonth === 10 || calendarMonth === 11; // Nov (10) / Dec (11), 0-indexed
@@ -68,10 +52,7 @@ function randomDateInMonth(year, month) {
   const now = new Date();
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
 
-  // For the current month, only pick a day up to today — otherwise a
-  // random day like the 26th would land "in the future" and wrongly
-  // outrank real live-added transactions at the top of the Recent
-  // Transactions list.
+  
   const maxDay = isCurrentMonth ? now.getDate() : 28;
   const day = randomInt(1, Math.max(1, Math.min(maxDay, 28)));
   const hour = randomInt(8, 22);
