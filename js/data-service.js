@@ -1,8 +1,4 @@
-// js/data-service.js
-//
-// All Firestore reads/writes live here. The rest of the app just
-// consumes plain JS arrays/objects from these functions — no
-// Firestore-specific types leak into the charting or UI code.
+
 
 import { db } from "./firebase-init.js";
 import {
@@ -17,7 +13,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 // ---------- One-time reference data (products, regions, customers) ----------
-// These rarely change, so we fetch them once rather than subscribing.
+
 
 export async function fetchReferenceData() {
   const [productsSnap, regionsSnap, customersSnap] = await Promise.all([
@@ -34,12 +30,7 @@ export async function fetchReferenceData() {
 }
 
 // ---------- Real-time transactions ----------
-// Subscribes to the transactions collection. Capped at 2000 docs, most
-// recent first — plenty for a demo dataset (~800 seeded transactions)
-// while keeping the client-side aggregation cheap.
-//
-// `onUpdate` is called with the full array every time the data changes
-// (initial load, and again whenever a new sale is added).
+
 
 export function subscribeToTransactions(onUpdate, onError) {
   const q = query(
@@ -69,8 +60,7 @@ export function subscribeToTransactions(onUpdate, onError) {
 }
 
 // ---------- Adding a new live sale ----------
-// Picks a random product + customer and writes a new transaction.
-// This is what the "Add a new sale" button triggers.
+
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -111,10 +101,7 @@ export async function addRandomSale({ products, customers }) {
 }
 
 // ---------- Adding a manually-entered sale ----------
-// Used by the "Add a sale" form: the visitor picks the product, customer,
-// quantity, and status; amount/profit are still computed from the
-// product's price/cost so the numbers stay consistent with the rest
-// of the dataset.
+
 
 export async function addManualSale({ productId, customerId, quantity, status, products, customers }) {
   const product = products.find((p) => p.id === productId);
