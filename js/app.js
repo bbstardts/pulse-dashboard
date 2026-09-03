@@ -1,8 +1,4 @@
-// js/app.js
-//
-// Entry point. Loads reference data once, subscribes to live
-// transactions, and re-renders everything whenever the data or the
-// filters change.
+
 
 import { fetchReferenceData, subscribeToTransactions, addManualSale } from "./data-service.js";
 import {
@@ -168,8 +164,7 @@ function wireSaleModalEvents() {
         products: referenceData.products,
         customers: referenceData.customers,
       });
-      // The onSnapshot listener picks up the new doc automatically and
-      // calls renderAll() — no manual re-render needed here.
+    
       closeSaleModal();
     } catch (err) {
       console.error("Failed to add sale:", err);
