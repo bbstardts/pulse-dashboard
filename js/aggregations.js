@@ -1,9 +1,4 @@
-// js/aggregations.js
-//
-// Pure functions that take the raw transactions array (already loaded
-// from Firestore) plus the current filter state, and return the
-// numbers/shapes the UI and charts need. Nothing here touches
-// Firestore directly — keeps this testable and reusable.
+
 
 export function filterTransactions(transactions, { days, regionId, category }) {
   const cutoff = new Date();
@@ -17,8 +12,7 @@ export function filterTransactions(transactions, { days, regionId, category }) {
   });
 }
 
-// Same window length, immediately preceding the current filtered range —
-// used to compute the "+X% vs previous period" deltas on the KPI cards.
+
 export function filterPreviousPeriod(transactions, { days, regionId, category }) {
   const periodEnd = new Date();
   periodEnd.setDate(periodEnd.getDate() - days);
@@ -49,8 +43,7 @@ export function percentChange(current, previous) {
   return ((current - previous) / previous) * 100;
 }
 
-// Groups revenue by calendar day -> [{ label: "Jan 4", value: 128.50 }, ...]
-// sorted chronologically, for the hero line chart.
+
 export function groupRevenueByDay(transactions) {
   const completed = transactions.filter((t) => t.status === "completed");
   const byDay = new Map();
