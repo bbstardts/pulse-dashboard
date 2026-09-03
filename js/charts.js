@@ -1,8 +1,4 @@
-// js/charts.js
-//
-// Creates and updates the three Chart.js instances. Colors are hardcoded
-// here (matching css/style.css's design tokens) since Chart.js can't
-// read CSS custom properties directly on canvas.
+
 
 const COLORS = {
   accent: "#3ecf8e",
